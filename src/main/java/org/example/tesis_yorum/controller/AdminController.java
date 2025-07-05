@@ -1,5 +1,7 @@
 package org.example.tesis_yorum.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.tesis_yorum.entity.Review;
 import org.example.tesis_yorum.entity.ReviewStatus;
@@ -19,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "*")
+@Tag(name = "Adminler", description = "Admin işlemleri")
 public class AdminController {
 
     private final ReviewService reviewService;
@@ -34,6 +37,9 @@ public class AdminController {
      * Get all pending reviews for approval
      * GET /api/admin/reviews/pending
      */
+    @Operation(
+            summary = "Onay Bekleyen Yorumları Göster",
+            description = "Onay Bekleyen Yorumları Gösterir.")
     @GetMapping("/reviews/pending")
     public ResponseEntity<List<Review>> getPendingReviews() {
         List<Review> pendingReviews = reviewService.getPendingReviews();
@@ -64,6 +70,9 @@ public class AdminController {
      * Approve a review
      * POST /api/admin/reviews/{reviewId}/approve
      */
+    @Operation(
+            summary = "Onay Bekleyen Yorumu Onayla",
+            description = "Onay Bekleyen Yorumu girilen Yorum ID'sine göre onayla.")
     @PostMapping("/reviews/{reviewId}/approve")
     public ResponseEntity<Review> approveReview(
             @PathVariable Long reviewId,
@@ -77,6 +86,9 @@ public class AdminController {
      * Reject a review
      * POST /api/admin/reviews/{reviewId}/reject
      */
+    @Operation(
+            summary = "Onay Bekleyen Yorumu Reddet",
+            description = "Onay Bekleyen Yorumu girilen Yorum ID'sine göre reddet.")
     @PostMapping("/reviews/{reviewId}/reject")
     public ResponseEntity<Review> rejectReview(
             @PathVariable Long reviewId,
@@ -87,32 +99,14 @@ public class AdminController {
         return ResponseEntity.ok(rejectedReview);
     }
 
-    /**
-     * Get review counts by status
-     * GET /api/admin/reviews/stats/counts
-     */
-    @GetMapping("/reviews/stats/counts")
-    public ResponseEntity<Map<ReviewStatus, Long>> getReviewCountsByStatus() {
-        Map<ReviewStatus, Long> counts = reviewService.getReviewCountsByStatus();
-        return ResponseEntity.ok(counts);
-    }
-
-    /**
-     * Get recent pending reviews (within last N days)
-     * GET /api/admin/reviews/recent-pending?days={days}
-     */
-    @GetMapping("/reviews/recent-pending")
-    public ResponseEntity<List<Review>> getRecentPendingReviews(
-            @RequestParam(defaultValue = "7") int days) {
-
-        List<Review> recentPending = reviewService.getRecentPendingReviews(days);
-        return ResponseEntity.ok(recentPending);
-    }
 
     /**
      * Get all reviews (all statuses) with pagination
      * GET /api/admin/reviews/all
      */
+    @Operation(
+            summary = "Bütün Yorumları Göster",
+            description = "Bütün Yorumları Onaysız veya Onaylı Farketmeden Gösterir.")
     @GetMapping("/reviews/all")
     public ResponseEntity<Page<Review>> getAllReviewsForAdmin(
             @RequestParam(defaultValue = "0") int page,
@@ -133,6 +127,9 @@ public class AdminController {
      * Delete any review (admin privilege)
      * DELETE /api/admin/reviews/{reviewId}
      */
+    @Operation(
+            summary = "Herhangi bir Yorumu Sil",
+            description = "Admin Yetkisiyle girilen Yorum ID'ye göre Yorum siler.")
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReviewAsAdmin(
             @PathVariable Long reviewId,
@@ -142,63 +139,10 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Get file storage statistics
-     * GET /api/admin/files/stats
-     */
-    @GetMapping("/files/stats")
-    public ResponseEntity<FileAttachmentService.FileStatistics> getFileStatistics() {
-        FileAttachmentService.FileStatistics stats = fileAttachmentService.getFileStatistics();
-        return ResponseEntity.ok(stats);
-    }
 
-    /**
-     * Get file count by content type
-     * GET /api/admin/files/stats/by-type
-     */
-    @GetMapping("/files/stats/by-type")
-    public ResponseEntity<Map<String, Long>> getFileCountByType() {
-        Map<String, Long> counts = fileAttachmentService.getAttachmentCountByContentType();
-        return ResponseEntity.ok(counts);
-    }
 
-    /**
-     * Get total storage used
-     * GET /api/admin/files/storage-used
-     */
-    @GetMapping("/files/storage-used")
-    public ResponseEntity<StorageInfo> getTotalStorageUsed() {
-        Long totalBytes = fileAttachmentService.getTotalStorageUsed();
-        String formatted = fileAttachmentService.getFormattedTotalStorageUsed();
 
-        StorageInfo storageInfo = new StorageInfo(totalBytes, formatted);
-        return ResponseEntity.ok(storageInfo);
-    }
 
-    /**
-     * Get recent file uploads (within last N days)
-     * GET /api/admin/files/recent?days={days}
-     */
-    @GetMapping("/files/recent")
-    public ResponseEntity<List<org.example.tesis_yorum.entity.FileAttachment>> getRecentFileUploads(
-            @RequestParam(defaultValue = "7") int days) {
-
-        List<org.example.tesis_yorum.entity.FileAttachment> recentFiles = fileAttachmentService.getRecentUploads(days);
-        return ResponseEntity.ok(recentFiles);
-    }
-
-    /**
-     * Get large files (over specified size in MB)
-     * GET /api/admin/files/large?sizeMB={sizeMB}
-     */
-    @GetMapping("/files/large")
-    public ResponseEntity<List<org.example.tesis_yorum.entity.FileAttachment>> getLargeFiles(
-            @RequestParam(defaultValue = "5") int sizeMB) {
-
-        long sizeInBytes = sizeMB * 1024L * 1024L;
-        List<org.example.tesis_yorum.entity.FileAttachment> largeFiles = fileAttachmentService.getLargeFiles(sizeInBytes);
-        return ResponseEntity.ok(largeFiles);
-    }
 
     /**
      * Find and clean up orphaned file attachments
@@ -209,27 +153,6 @@ public class AdminController {
         int deletedCount = fileAttachmentService.cleanupOrphanedAttachments();
         CleanupResult result = new CleanupResult(deletedCount, "Orphaned files cleaned up successfully");
         return ResponseEntity.ok(result);
-    }
-
-    /**
-     * Get system dashboard statistics
-     * GET /api/admin/dashboard/stats
-     */
-    @GetMapping("/dashboard/stats")
-    public ResponseEntity<DashboardStats> getDashboardStats() {
-        Map<ReviewStatus, Long> reviewCounts = reviewService.getReviewCountsByStatus();
-        FileAttachmentService.FileStatistics fileStats = fileAttachmentService.getFileStatistics();
-
-        DashboardStats stats = new DashboardStats(
-                reviewCounts.get(ReviewStatus.PENDING),
-                reviewCounts.get(ReviewStatus.APPROVED),
-                reviewCounts.get(ReviewStatus.REJECTED),
-                fileStats.getFileCount(),
-                fileStats.getTotalSize(),
-                fileStats.getFormattedTotalSize()
-        );
-
-        return ResponseEntity.ok(stats);
     }
 
     // Request/Response DTOs

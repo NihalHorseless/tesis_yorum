@@ -41,16 +41,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByUserId(Long userId, Pageable pageable);
 
     /**
-     * Find reviews by facility ID
-     */
-    List<Review> findByFacilityId(Long facilityId);
-
-    /**
-     * Find approved reviews by facility ID
-     */
-    List<Review> findByFacilityIdAndStatus(Long facilityId, ReviewStatus status);
-
-    /**
      * Find approved reviews by facility ID with pagination
      */
     Page<Review> findByFacilityIdAndStatus(Long facilityId, ReviewStatus status, Pageable pageable);
@@ -61,53 +51,16 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByUserIdAndFacilityId(Long userId, Long facilityId);
 
     /**
-     * Find reviews by rating
-     */
-    List<Review> findByRating(Integer rating);
-
-    /**
-     * Find reviews by rating range
-     */
-    @Query("SELECT r FROM Review r WHERE r.rating >= :minRating AND r.rating <= :maxRating AND r.status = 'APPROVED'")
-    List<Review> findByRatingBetween(@Param("minRating") Integer minRating, @Param("maxRating") Integer maxRating);
-
-    /**
-     * Find reviews created within date range
-     */
-    @Query("SELECT r FROM Review r WHERE r.createdAt >= :startDate AND r.createdAt <= :endDate")
-    List<Review> findByCreatedAtBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-
-    /**
-     * Find reviews approved by specific admin
-     */
-    List<Review> findByApprovedBy(Long adminId);
-
-    /**
-     * Count reviews by status
-     */
-    long countByStatus(ReviewStatus status);
-
-    /**
      * Count reviews by facility and status
      */
     long countByFacilityIdAndStatus(Long facilityId, ReviewStatus status);
 
-    /**
-     * Count reviews by user
-     */
-    long countByUserId(Long userId);
 
     /**
      * Calculate average rating for a facility (approved reviews only)
      */
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.facility.id = :facilityId AND r.status = 'APPROVED'")
     Double calculateAverageRatingByFacilityId(@Param("facilityId") Long facilityId);
-
-    /**
-     * Find latest approved reviews
-     */
-    @Query("SELECT r FROM Review r WHERE r.status = 'APPROVED' ORDER BY r.createdAt DESC")
-    Page<Review> findLatestApprovedReviews(Pageable pageable);
 
     /**
      * Find reviews with attachments
@@ -128,20 +81,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> searchByContent(@Param("keyword") String keyword);
 
     /**
-     * Find top rated reviews for a facility
-     */
-    @Query("SELECT r FROM Review r WHERE r.facility.id = :facilityId AND r.status = 'APPROVED' ORDER BY r.rating DESC, r.createdAt DESC")
-    Page<Review> findTopRatedReviewsByFacility(@Param("facilityId") Long facilityId, Pageable pageable);
-
-    /**
      * Get review statistics by facility
      */
     @Query("SELECT r.rating, COUNT(r) FROM Review r WHERE r.facility.id = :facilityId AND r.status = 'APPROVED' GROUP BY r.rating ORDER BY r.rating")
     List<Object[]> getReviewStatisticsByFacility(@Param("facilityId") Long facilityId);
 
-    /**
-     * Find recent reviews pending approval (within last N days)
-     */
-    @Query("SELECT r FROM Review r WHERE r.status = 'PENDING' AND r.createdAt >= :cutoffDate ORDER BY r.createdAt ASC")
-    List<Review> findRecentPendingReviews(@Param("cutoffDate") LocalDateTime cutoffDate);
 }

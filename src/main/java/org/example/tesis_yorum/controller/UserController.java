@@ -1,5 +1,7 @@
 package org.example.tesis_yorum.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.tesis_yorum.entity.User;
 import org.example.tesis_yorum.entity.UserRole;
@@ -15,6 +17,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
+@Tag(name = "Kullanıcılar", description = "Kullanıcı işlemleri")
 public class UserController {
 
     private final UserService userService;
@@ -28,6 +31,9 @@ public class UserController {
      * Create a new user
      * POST /api/users
      */
+    @Operation(
+            summary = "Yeni kullanıcı oluştur",
+            description = "Yeni kullanıcı oluşturur.")
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request) {
         User user = new User(request.getUsername(), request.getEmail(), request.getFullName());
@@ -43,6 +49,9 @@ public class UserController {
      * Get all users
      * GET /api/users
      */
+    @Operation(
+            summary = "Bütün kullanıcıları göster",
+            description = "Bütün kullanıcıları gösterir.")
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -53,6 +62,9 @@ public class UserController {
      * Get user by ID
      * GET /api/users/{id}
      */
+    @Operation(
+            summary = "Kullanıcıları ID'ye göre göster",
+            description = "Kullanıcıları girilen ID'ye göre gösterir.")
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
@@ -63,42 +75,15 @@ public class UserController {
      * Get user by username
      * GET /api/users/username/{username}
      */
+    @Operation(
+            summary = "Kullanıcıları kullanıcı ismine göre göster",
+            description = "Kullanıcıları girilen kullanıcı ismine göre gösterir.")
     @GetMapping("/username/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         User user = userService.getUserByUsername(username);
         return ResponseEntity.ok(user);
     }
 
-    /**
-     * Find user by username or email
-     * GET /api/users/search?identifier={identifier}
-     */
-    @GetMapping("/search")
-    public ResponseEntity<User> findUserByUsernameOrEmail(@RequestParam String identifier) {
-        Optional<User> user = userService.findUserByUsernameOrEmail(identifier);
-        return user.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Get users by role
-     * GET /api/users/role/{role}
-     */
-    @GetMapping("/role/{role}")
-    public ResponseEntity<List<User>> getUsersByRole(@PathVariable UserRole role) {
-        List<User> users = userService.getUsersByRole(role);
-        return ResponseEntity.ok(users);
-    }
-
-    /**
-     * Get all admin users
-     * GET /api/users/admins
-     */
-    @GetMapping("/admins")
-    public ResponseEntity<List<User>> getAllAdmins() {
-        List<User> admins = userService.getAllAdmins();
-        return ResponseEntity.ok(admins);
-    }
 
     /**
      * Update user
@@ -137,35 +122,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Check if username exists
-     * GET /api/users/check/username/{username}
-     */
-    @GetMapping("/check/username/{username}")
-    public ResponseEntity<Boolean> checkUsernameExists(@PathVariable String username) {
-        boolean exists = userService.usernameExists(username);
-        return ResponseEntity.ok(exists);
-    }
-
-    /**
-     * Check if email exists
-     * GET /api/users/check/email/{email}
-     */
-    @GetMapping("/check/email/{email}")
-    public ResponseEntity<Boolean> checkEmailExists(@PathVariable String email) {
-        boolean exists = userService.emailExists(email);
-        return ResponseEntity.ok(exists);
-    }
-
-    /**
-     * Get users ordered by review count
-     * GET /api/users/by-review-count
-     */
-    @GetMapping("/by-review-count")
-    public ResponseEntity<List<User>> getUsersOrderedByReviewCount() {
-        List<User> users = userService.getUsersOrderedByReviewCount();
-        return ResponseEntity.ok(users);
-    }
 
     // Request DTOs
     public static class CreateUserRequest {

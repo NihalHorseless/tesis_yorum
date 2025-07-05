@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -65,52 +64,11 @@ public class UserService {
     }
 
     /**
-     * Get user by email
-     */
-    @Transactional(readOnly = true)
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
-    }
-
-    /**
-     * Find user by username or email
-     */
-    @Transactional(readOnly = true)
-    public Optional<User> findUserByUsernameOrEmail(String identifier) {
-        return userRepository.findByUsernameOrEmail(identifier);
-    }
-
-    /**
      * Get all users
      */
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    /**
-     * Get users by role
-     */
-    @Transactional(readOnly = true)
-    public List<User> getUsersByRole(UserRole role) {
-        return userRepository.findByRole(role);
-    }
-
-    /**
-     * Get all admin users
-     */
-    @Transactional(readOnly = true)
-    public List<User> getAllAdmins() {
-        return userRepository.findAllAdmins();
-    }
-
-    /**
-     * Get all regular users
-     */
-    @Transactional(readOnly = true)
-    public List<User> getAllRegularUsers() {
-        return userRepository.findAllRegularUsers();
     }
 
     /**
@@ -153,29 +111,6 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    /**
-     * Check if user exists by ID
-     */
-    @Transactional(readOnly = true)
-    public boolean userExists(Long id) {
-        return userRepository.existsById(id);
-    }
-
-    /**
-     * Check if username exists
-     */
-    @Transactional(readOnly = true)
-    public boolean usernameExists(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    /**
-     * Check if email exists
-     */
-    @Transactional(readOnly = true)
-    public boolean emailExists(String email) {
-        return userRepository.existsByEmail(email);
-    }
 
     /**
      * Check if user is admin
@@ -184,22 +119,6 @@ public class UserService {
     public boolean isAdmin(Long userId) {
         User user = getUserById(userId);
         return user.getRole() == UserRole.ADMIN;
-    }
-
-    /**
-     * Get users ordered by review count
-     */
-    @Transactional(readOnly = true)
-    public List<User> getUsersOrderedByReviewCount() {
-        return userRepository.findUsersOrderByReviewCount();
-    }
-
-    /**
-     * Get users who reviewed a specific facility
-     */
-    @Transactional(readOnly = true)
-    public List<User> getUsersByFacility(Long facilityId) {
-        return userRepository.findUsersByFacilityId(facilityId);
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.example.tesis_yorum.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -38,16 +39,11 @@ public class Facility {
     @Column(nullable = false)
     private FacilityType type;
 
-    @Column(nullable = false)
-    private Boolean active = true;
-
     @OneToMany(mappedBy = "facility", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference("facility-reviews")  // This manages the relationship
+    @JsonIgnore
     private List<Review> reviews = new ArrayList<>();
 
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
@@ -118,36 +114,12 @@ public class Facility {
         this.type = type;
     }
 
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
     public List<Review> getReviews() {
         return reviews;
     }
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     @Override
@@ -159,8 +131,6 @@ public class Facility {
                 ", address='" + address + '\'' +
                 ", city='" + city + '\'' +
                 ", type=" + type +
-                ", active=" + active +
-                ", createdAt=" + createdAt +
                 '}';
     }
 }

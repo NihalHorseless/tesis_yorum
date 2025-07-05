@@ -1,5 +1,6 @@
 package org.example.tesis_yorum.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -39,6 +40,7 @@ public class FileAttachment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
+    @JsonIgnoreProperties({"attachments", "user", "facility"})  // Prevent deep circular reference
     private Review review;
 
     @CreationTimestamp

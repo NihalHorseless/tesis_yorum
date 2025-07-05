@@ -1,6 +1,7 @@
 package org.example.tesis_yorum.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -21,13 +22,13 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Review content is required")
-    @Size(min = 10, max = 1000, message = "Review content must be between 10 and 1000 characters")
+    @NotBlank(message = "Yorum Yazısı")
+    @Size(min = 10, max = 1000, message = "Yorum 10 ila 1000 karakter arasında olmalıdır")
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Min(value = 1, message = "Rating must be at least 1")
-    @Max(value = 5, message = "Rating must be at most 5")
+    @Min(value = 1, message = "Puanlama en az 1 olmalı")
+    @Max(value = 5, message = "Puanlama en fazla 5 olmalı")
     @Column(nullable = false)
     private Integer rating;
 
@@ -35,22 +36,19 @@ public class Review {
     @Column(nullable = false)
     private ReviewStatus status = ReviewStatus.PENDING;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  // Changed to EAGER to avoid lazy loading issues
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference("user-reviews")  // This refers back to user
+    @JsonIgnoreProperties({"reviews", "password"})  // Prevent circular reference
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)  // Changed to EAGER
     @JoinColumn(name = "facility_id", nullable = false)
-    @JsonBackReference("facility-reviews")  // This refers back to facility
+    @JsonIgnoreProperties({"reviews"})  // Prevent circular reference
     private Facility facility;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, fetch = FetchType.EAGER)  // Changed to EAGER
+    @JsonIgnoreProperties({"review"})  // Prevent circular reference
     private List<FileAttachment> attachments = new ArrayList<>();
-
-    @Column(name = "admin_notes")
-    @Size(max = 500, message = "Admin notes cannot exceed 500 characters")
-    private String adminNotes;
 
     @Column(name = "approved_by")
     private Long approvedBy;
@@ -76,7 +74,7 @@ public class Review {
         this.facility = facility;
     }
 
-    // Getters and Setters
+    // Getters and Setters (same as before)
     public Long getId() {
         return id;
     }
@@ -93,10 +91,6 @@ public class Review {
         this.content = content;
     }
 
-    public Integer getRating() {
-        return rating;
-    }
-
     public void setRating(Integer rating) {
         this.rating = rating;
     }
@@ -105,9 +99,6 @@ public class Review {
         return status;
     }
 
-    public void setStatus(ReviewStatus status) {
-        this.status = status;
-    }
 
     public User getUser() {
         return user;
@@ -125,53 +116,6 @@ public class Review {
         this.facility = facility;
     }
 
-    public List<FileAttachment> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(List<FileAttachment> attachments) {
-        this.attachments = attachments;
-    }
-
-    public String getAdminNotes() {
-        return adminNotes;
-    }
-
-    public void setAdminNotes(String adminNotes) {
-        this.adminNotes = adminNotes;
-    }
-
-    public Long getApprovedBy() {
-        return approvedBy;
-    }
-
-    public void setApprovedBy(Long approvedBy) {
-        this.approvedBy = approvedBy;
-    }
-
-    public LocalDateTime getApprovedAt() {
-        return approvedAt;
-    }
-
-    public void setApprovedAt(LocalDateTime approvedAt) {
-        this.approvedAt = approvedAt;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     // Helper methods
     public void approve(Long adminId) {
@@ -183,7 +127,6 @@ public class Review {
     public void reject(Long adminId, String notes) {
         this.status = ReviewStatus.REJECTED;
         this.approvedBy = adminId;
-        this.adminNotes = notes;
         this.approvedAt = LocalDateTime.now();
     }
 

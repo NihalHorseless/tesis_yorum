@@ -1,11 +1,6 @@
 package org.example.tesis_yorum.service;
 
-import org.example.tesis_yorum.entity.Facility;
-import org.example.tesis_yorum.entity.FileAttachment;
-import org.example.tesis_yorum.entity.Review;
-import org.example.tesis_yorum.entity.User;
-import org.example.tesis_yorum.entity.ReviewStatus;
-import org.example.tesis_yorum.entity.UserRole;
+import org.example.tesis_yorum.entity.*;
 import org.example.tesis_yorum.exceptions.ResourceNotFoundException;
 import org.example.tesis_yorum.exceptions.UnauthorizedException;
 import org.example.tesis_yorum.repository.ReviewRepository;
@@ -16,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -48,9 +42,6 @@ public class ReviewService {
         User user = userService.getUserById(userId);
         Facility facility = facilityService.getFacilityById(facilityId);
 
-        if (!facility.getActive()) {
-            throw new IllegalArgumentException("Cannot create review for inactive facility");
-        }
 
         Review review = new Review(content, rating, user, facility);
         review = reviewRepository.save(review);
@@ -116,14 +107,6 @@ public class ReviewService {
     }
 
     /**
-     * Get approved reviews by facility
-     */
-    @Transactional(readOnly = true)
-    public List<Review> getApprovedReviewsByFacility(Long facilityId) {
-        return reviewRepository.findByFacilityIdAndStatus(facilityId, ReviewStatus.APPROVED);
-    }
-
-    /**
      * Get approved reviews by facility with pagination
      */
     @Transactional(readOnly = true)
@@ -131,13 +114,6 @@ public class ReviewService {
         return reviewRepository.findByFacilityIdAndStatus(facilityId, ReviewStatus.APPROVED, pageable);
     }
 
-    /**
-     * Get reviews by user
-     */
-    @Transactional(readOnly = true)
-    public List<Review> getReviewsByUser(Long userId) {
-        return reviewRepository.findByUserId(userId);
-    }
 
     /**
      * Get reviews by user with pagination
@@ -147,21 +123,6 @@ public class ReviewService {
         return reviewRepository.findByUserId(userId, pageable);
     }
 
-    /**
-     * Get latest approved reviews
-     */
-    @Transactional(readOnly = true)
-    public Page<Review> getLatestApprovedReviews(Pageable pageable) {
-        return reviewRepository.findLatestApprovedReviews(pageable);
-    }
-
-    /**
-     * Get top rated reviews for a facility
-     */
-    @Transactional(readOnly = true)
-    public Page<Review> getTopRatedReviewsByFacility(Long facilityId, Pageable pageable) {
-        return reviewRepository.findTopRatedReviewsByFacility(facilityId, pageable);
-    }
 
     /**
      * Search reviews by content
@@ -171,21 +132,6 @@ public class ReviewService {
         return reviewRepository.searchByContent(keyword);
     }
 
-    /**
-     * Get reviews by rating range
-     */
-    @Transactional(readOnly = true)
-    public List<Review> getReviewsByRatingRange(Integer minRating, Integer maxRating) {
-        return reviewRepository.findByRatingBetween(minRating, maxRating);
-    }
-
-    /**
-     * Get reviews within date range
-     */
-    @Transactional(readOnly = true)
-    public List<Review> getReviewsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return reviewRepository.findByCreatedAtBetween(startDate, endDate);
-    }
 
     /**
      * Get reviews with attachments
@@ -294,36 +240,6 @@ public class ReviewService {
         return new ReviewStatistics(totalReviews, averageRating, ratingCounts);
     }
 
-    /**
-     * Get review counts by status
-     */
-    @Transactional(readOnly = true)
-    public Map<ReviewStatus, Long> getReviewCountsByStatus() {
-        return Map.of(
-                ReviewStatus.PENDING, reviewRepository.countByStatus(ReviewStatus.PENDING),
-                ReviewStatus.APPROVED, reviewRepository.countByStatus(ReviewStatus.APPROVED),
-                ReviewStatus.REJECTED, reviewRepository.countByStatus(ReviewStatus.REJECTED)
-        );
-    }
-
-    /**
-     * Get recent pending reviews (within last N days)
-     */
-    @Transactional(readOnly = true)
-    public List<Review> getRecentPendingReviews(int days) {
-        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(days);
-        return reviewRepository.findRecentPendingReviews(cutoffDate);
-    }
-
-    /**
-     * Check if user can review facility (prevent duplicate reviews)
-     */
-    @Transactional(readOnly = true)
-    public boolean canUserReviewFacility(Long userId, Long facilityId) {
-        List<Review> existingReviews = reviewRepository.findByUserIdAndFacilityId(userId, facilityId);
-        // Allow only one review per user per facility
-        return existingReviews.isEmpty();
-    }
 
     /**
      * Get user's review for a specific facility
