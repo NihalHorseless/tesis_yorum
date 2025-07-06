@@ -13,7 +13,7 @@ Kullanıcıların tesisler hakkında yorum yapabildiği, yorumlara belirli tip v
 
 1. **Projeyi klonlayın:**
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/NihalHorseless/tesis_yorum
 cd tesis_yorum
 ```
 
@@ -205,7 +205,7 @@ POST /api/admin/reviews/2/reject?adminId=2
 5. Dosya yükleme işlemlerini `/api/reviews` endpoint'i ile dene
 
 
-## 🚦 Durum Kodları
+## Durum Kodları
 
 - **200** - Başarılı
 - **201** - Oluşturuldu
