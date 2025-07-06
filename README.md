@@ -52,29 +52,29 @@ JSON formatında API dokümantasyonu:
 ```
 GET    /api/users                    # Tüm kullanıcıları listele
 POST   /api/users                    # Yeni kullanıcı oluştur
-GET    /api/users/{id}               # Kullanıcı detayı
+GET    /api/users/{id}               # ID'ye göre Kullanıcı detayı
+GET    /api/users/{username}         # İsme göre Kullanıcı detayı
 PUT    /api/users/{id}               # Kullanıcı güncelle
-DELETE /api/users/{id}               # Kullanıcı sil
 ```
 
 ### Tesis İşlemleri
 ```
 GET    /api/facilities               # Tüm tesisleri listele
 POST   /api/facilities               # Yeni tesis oluştur
-GET    /api/facilities/{id}          # Tesis detayı
-GET    /api/facilities/type/{type}   # Türe göre tesisler
+GET    /api/facilities/{id}          # ID'ye göre Tesis detayı
+GET    /api/facilities/search        # İsim veya Açıklamaya göre Tesis detayı
 GET    /api/facilities/search?q=...  # Tesis arama
 ```
 
 ### Yorum İşlemleri
 ```
-POST   /api/reviews                  # Yeni yorum (dosya ile)
-POST   /api/reviews/simple           # Yeni yorum (sadece JSON)
+POST   /api/reviews                  # Yeni yorum
 GET    /api/reviews                  # Onaylı yorumları listele
-GET    /api/reviews/{id}             # Yorum detayı
-GET    /api/reviews/facility/{id}    # Tesise ait yorumlar
+GET    /api/reviews/{id}             # Onaylı Yorum detayı
+GET    /api/reviews/facility/{id}    # Tesise ait Onaylı yorumlar
 GET    /api/reviews/user/{id}        # Kullanıcının yorumları
-PUT    /api/reviews/{id}             # Yorum güncelle
+GET    /api/reviews/facility/{facilityid}/statistics        # Girilen Tesisin Yorum İstatistiklerini Göster
+PUT    /api/reviews/{id}             # Beklemede olan Yorum güncelle
 DELETE /api/reviews/{id}             # Yorum sil
 ```
 
@@ -83,7 +83,7 @@ DELETE /api/reviews/{id}             # Yorum sil
 GET    /api/admin/reviews/pending    # Bekleyen yorumlar
 POST   /api/admin/reviews/{id}/approve  # Yorumu onayla
 POST   /api/admin/reviews/{id}/reject   # Yorumu reddet
-GET    /api/admin/dashboard/stats    # Dashboard istatistikleri
+GET    /api/admin/reviews/all    # Bütün Yorumları Göster
 ```
 
 
@@ -143,7 +143,7 @@ Uygulama başladığında otomatik olarak şunlar oluşturulur:
 - 2 tesis (otel ve restoran)
 - 2 örnek yorum
 
-## Kullanım Senaryoları
+## Kullanım Örnekleri
 
 > **💡 İpucu:** Tüm API endpoint'lerini Swagger UI'de interaktif olarak test edebilirsiniz: http://localhost:8080/swagger-ui/index.html
 
@@ -161,8 +161,6 @@ POST /api/users
 ### 2. Tesis Arama
 ```
 GET /api/facilities/search?q=hotel
-GET /api/facilities/type/RESTAURANT
-GET /api/facilities/city/Istanbul
 ```
 
 ### 3. Dosyalı Yorum Oluşturma
