@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo '🔄 Checking out source code from GitLab...'
+                echo 'Checking out source code from GitLab'
                 checkout scm
                 echo '✅ Source code checked out successfully'
             }
@@ -22,33 +22,36 @@ pipeline {
                 script {
                     if (isUnix()) {
                         sh 'java -version || echo "Java not found"'
-                        sh 'mvn -version || echo "Maven not found"'
-                        sh 'which java || echo "Java path not found"'
-                        sh 'which mvn || echo "Maven path not found"'
-                        sh 'echo "JAVA_HOME: $JAVA_HOME"'
+                        sh './mvnw -version || echo "Maven Wrapper not found"'
                         sh 'echo "Build Number: ${BUILD_NUMBER}"'
                         sh 'echo "Branch: ${BRANCH_NAME}"'
                     } else {
                         bat 'java -version || echo "Java not found"'
-                        bat 'mvn -version || echo "Maven not found"'
-                        bat 'where java || echo "Java path not found"'
-                        bat 'where mvn || echo "Maven path not found"'
-                        bat 'echo "JAVA_HOME: %JAVA_HOME%"'
-                        bat 'echo "Build Number: %BUILD_NUMBER%"'
-                        bat 'echo "Branch: %BRANCH_NAME%"'
+                        bat 'mvnw.cmd -version || echo "Maven Wrapper not found"'
+                        bat 'echo Build Number: %BUILD_NUMBER%'
+                        bat 'echo Branch: %BRANCH_NAME%'
                     }
                 }
             }
         }
 
+        stage('Make Maven Wrapper Executable') {
+            when {
+                expression { isUnix() }
+            }
+            steps {
+                sh 'chmod +x mvnw'
+                echo 'Maven wrapper is now executable'
+            }
+        }
+
         stage('Clean') {
             steps {
-                echo 'Cleaning previous builds...'
                 script {
                     if (isUnix()) {
-                        sh 'mvn clean'
+                        sh './mvnw clean'
                     } else {
-                        bat 'mvn clean'
+                        bat 'mvnw.cmd clean'
                     }
                 }
                 echo 'Clean completed'
@@ -57,12 +60,11 @@ pipeline {
 
         stage('Compile') {
             steps {
-                echo 'Compiling source code...'
                 script {
                     if (isUnix()) {
-                        sh 'mvn compile'
+                        sh './mvnw compile'
                     } else {
-                        bat 'mvn compile'
+                        bat 'mvnw.cmd compile'
                     }
                 }
                 echo 'Compilation successful'
@@ -73,9 +75,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh 'mvn test'
+                        sh './mvnw test'
                     } else {
-                        bat 'mvn test'
+                        bat 'mvnw.cmd test'
                     }
                 }
                 echo 'Tests completed'
@@ -86,19 +88,18 @@ pipeline {
                     echo 'Test results published'
                 }
                 failure {
-                    echo 'Tests failed but continuing pipeline'
+                    echo 'Tests failed but continuing pipeline...'
                 }
             }
         }
 
         stage('Package') {
             steps {
-                echo 'Packaging application'
                 script {
                     if (isUnix()) {
-                        sh 'mvn package -DskipTests'
+                        sh './mvnw package -DskipTests'
                     } else {
-                        bat 'mvn package -DskipTests'
+                        bat 'mvnw.cmd package -DskipTests'
                     }
                 }
                 echo 'Packaging completed'
@@ -121,7 +122,7 @@ pipeline {
                         sh 'ls -la target/ || echo "Target directory not found"'
                         sh 'find target -name "*.jar" -type f || echo "No JAR files found"'
                     } else {
-                        bat 'dir target\\ || echo "Target directory not found"'
+                        bat 'dir target || echo "Target directory not found"'
                         bat 'dir target\\*.jar || echo "No JAR files found"'
                     }
                 }
@@ -139,6 +140,13 @@ pipeline {
             echo 'Pipeline completed successfully!'
             echo "Build: ${BUILD_NUMBER}"
             echo "Application: ${APP_NAME}"
+            script {
+                if (isUnix()) {
+                    sh 'echo "JAR file created: $(find target -name "*.jar" -type f)"'
+                } else {
+                    bat 'echo JAR file created in target directory'
+                }
+            }
         }
 
         failure {
