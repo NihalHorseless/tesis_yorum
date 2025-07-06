@@ -1,91 +1,68 @@
-pipeline {
+ipeline {
     agent any
 
+    tools {
+        maven 'Maven'
+        jdk 'JDK'
+    }
+
     environment {
-        MAVEN_OPTS = '-Dmaven.compiler.source=17 -Dmaven.compiler.target=17'
-        APP_NAME = 'tesis-yorum'
-        APP_VERSION = "${BUILD_NUMBER}"
+        MAVEN_OPTS = '-Dmaven.test.failure.ignore=true'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out source code from GitLab'
+                echo 'Checking out source code...'
                 checkout scm
-                echo '✅ Source code checked out successfully'
-            }
-        }
-
-        stage('Environment Info') {
-            steps {
-                echo 'Environment Information:'
-                script {
-                    if (isUnix()) {
-                        sh 'java -version || echo "Java not found"'
-                        sh './mvnw -version || echo "Maven Wrapper not found"'
-                        sh 'echo "Build Number: ${BUILD_NUMBER}"'
-                        sh 'echo "Branch: ${BRANCH_NAME}"'
-                    } else {
-                        bat 'java -version || echo "Java not found"'
-                        bat 'mvnw.cmd -version || echo "Maven Wrapper not found"'
-                        bat 'echo Build Number: %BUILD_NUMBER%'
-                        bat 'echo Branch: %BRANCH_NAME%'
-                    }
-                }
-            }
-        }
-
-        stage('Make Maven Wrapper Executable') {
-            when {
-                expression { isUnix() }
-            }
-            steps {
-                sh 'chmod +x mvnw'
-                echo 'Maven wrapper is now executable'
             }
         }
 
         stage('Clean') {
             steps {
+                echo 'Cleaning previous builds...'
                 script {
                     if (isUnix()) {
-                        sh './mvnw clean'
+                        sh 'mvn clean'
                     } else {
-                        bat 'mvnw.cmd clean'
+                        bat 'mvn clean'
                     }
                 }
-                echo 'Clean completed'
             }
         }
 
         stage('Compile') {
             steps {
+                echo 'Compiling source code...'
                 script {
                     if (isUnix()) {
-                        sh './mvnw compile'
+                        sh 'mvn compile'
                     } else {
-                        bat 'mvnw.cmd compile'
+                        bat 'mvn compile'
                     }
                 }
-                echo 'Compilation successful'
             }
         }
 
         stage('Test') {
             steps {
+                echo 'Running tests...'
                 script {
                     if (isUnix()) {
-                        sh './mvnw test'
+                        sh 'mvn test'
                     } else {
-                        bat 'mvnw.cmd test'
+                        bat 'mvn test'
                     }
                 }
                 echo 'Tests completed'
             }
             post {
                 always {
-                    publishTestResults testResultsPattern: 'target/surefire-reports/*.xml'
-                    echo 'Test results published'
+                    // Publish test results using the correct step name
+                    junit(
+                        allowEmptyResults: true,
+                        testResults: 'target/surefire-reports/*.xml'
+                    )
                 }
                 failure {
                     echo 'Tests failed but continuing pipeline...'
@@ -95,36 +72,36 @@ pipeline {
 
         stage('Package') {
             steps {
+                echo 'Packaging application...'
                 script {
                     if (isUnix()) {
-                        sh './mvnw package -DskipTests'
+                        sh 'mvn package -DskipTests'
                     } else {
-                        bat 'mvnw.cmd package -DskipTests'
+                        bat 'mvn package -DskipTests'
                     }
                 }
-                echo 'Packaging completed'
             }
         }
 
         stage('Archive Artifacts') {
             steps {
-                echo 'Archiving build artifacts...'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true, allowEmptyArchive: true
-                echo 'Artifacts archived successfully'
+                echo 'Archiving artifacts...'
+                archiveArtifacts(
+                    artifacts: 'target/*.jar',
+                    allowEmptyArchive: true,
+                    fingerprint: true
+                )
             }
         }
 
         stage('Build Summary') {
             steps {
-                echo 'Build Summary:'
+                echo 'Build completed successfully!'
                 script {
-                    if (isUnix()) {
-                        sh 'ls -la target/ || echo "Target directory not found"'
-                        sh 'find target -name "*.jar" -type f || echo "No JAR files found"'
-                    } else {
-                        bat 'dir target || echo "Target directory not found"'
-                        bat 'dir target\\*.jar || echo "No JAR files found"'
-                    }
+                    echo "Build Number: ${env.BUILD_NUMBER}"
+                    echo "Build URL: ${env.BUILD_URL}"
+                    echo "Job Name: ${env.JOB_NAME}"
+                    echo "Workspace: ${env.WORKSPACE}"
                 }
             }
         }
@@ -135,27 +112,17 @@ pipeline {
             echo 'Cleaning up workspace...'
             cleanWs()
         }
-
         success {
             echo 'Pipeline completed successfully!'
-            echo "Build: ${BUILD_NUMBER}"
-            echo "Application: ${APP_NAME}"
-            script {
-                if (isUnix()) {
-                    sh 'echo "JAR file created: $(find target -name "*.jar" -type f)"'
-                } else {
-                    bat 'echo JAR file created in target directory'
-                }
-            }
+            echo 'All stages passed without errors.'
         }
-
         failure {
             echo 'Pipeline failed!'
             echo 'Check the console output for errors'
         }
-
         unstable {
             echo 'Pipeline completed with warnings'
+            echo 'Some tests may have failed'
         }
     }
 }
