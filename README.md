@@ -86,12 +86,6 @@ POST   /api/admin/reviews/{id}/reject   # Yorumu reddet
 GET    /api/admin/dashboard/stats    # Dashboard istatistikleri
 ```
 
-### Dosya İşlemleri
-```
-GET    /api/files/{filename}         # Dosya görüntüle
-GET    /api/files/{filename}/download # Dosya indir
-GET    /api/files/review/{reviewId}  # Yorumun dosyaları
-```
 
 ## Dosya Yükleme Kuralları
 
@@ -103,7 +97,7 @@ GET    /api/files/review/{reviewId}  # Yorumun dosyaları
 - **Maksimum dosya boyutu:** 10 MB
 - **Content-Type kontrolü:** Dosya uzantısı ile eşleşmeli
 
-### ükleme Örnekleri
+### Yükleme Örnekleri
 
 **Multipart Form ile Yorum + Dosya:**
 ```bash
