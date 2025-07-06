@@ -94,14 +94,6 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    /**
-     * Update user role (admin only operation)
-     */
-    public User updateUserRole(Long userId, UserRole newRole) {
-        User user = getUserById(userId);
-        user.setRole(newRole);
-        return userRepository.save(user);
-    }
 
     /**
      * Delete user

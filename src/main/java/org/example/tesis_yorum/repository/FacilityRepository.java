@@ -1,7 +1,6 @@
 package org.example.tesis_yorum.repository;
 
 import org.example.tesis_yorum.entity.Facility;
-import org.example.tesis_yorum.entity.FacilityType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,12 +10,6 @@ import java.util.List;
 
 @Repository
 public interface FacilityRepository extends JpaRepository<Facility, Long> {
-
-    /**
-     * Find facilities by type
-     */
-    List<Facility> findByType(FacilityType type);
-
 
 
 

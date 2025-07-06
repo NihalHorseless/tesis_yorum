@@ -5,8 +5,6 @@ import org.example.tesis_yorum.exceptions.ResourceNotFoundException;
 import org.example.tesis_yorum.exceptions.UnauthorizedException;
 import org.example.tesis_yorum.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,13 +88,6 @@ public class ReviewService {
         return reviewRepository.findByStatus(status);
     }
 
-    /**
-     * Get reviews by status with pagination
-     */
-    @Transactional(readOnly = true)
-    public Page<Review> getReviewsByStatus(ReviewStatus status, Pageable pageable) {
-        return reviewRepository.findByStatus(status, pageable);
-    }
 
     /**
      * Get pending reviews for admin approval (ordered by creation date)
@@ -110,8 +101,8 @@ public class ReviewService {
      * Get approved reviews by facility with pagination
      */
     @Transactional(readOnly = true)
-    public Page<Review> getApprovedReviewsByFacility(Long facilityId, Pageable pageable) {
-        return reviewRepository.findByFacilityIdAndStatus(facilityId, ReviewStatus.APPROVED, pageable);
+    public List<Review> getApprovedReviewsByFacility(Long facilityId) {
+        return reviewRepository.findByFacilityIdAndStatus(facilityId, ReviewStatus.APPROVED);
     }
 
 
@@ -119,27 +110,13 @@ public class ReviewService {
      * Get reviews by user with pagination
      */
     @Transactional(readOnly = true)
-    public Page<Review> getReviewsByUser(Long userId, Pageable pageable) {
-        return reviewRepository.findByUserId(userId, pageable);
+    public List<Review> getReviewsByUser(Long userId) {
+        return reviewRepository.findByUserId(userId);
     }
 
 
-    /**
-     * Search reviews by content
-     */
-    @Transactional(readOnly = true)
-    public List<Review> searchReviewsByContent(String keyword) {
-        return reviewRepository.searchByContent(keyword);
-    }
 
 
-    /**
-     * Get reviews with attachments
-     */
-    @Transactional(readOnly = true)
-    public List<Review> getReviewsWithAttachments() {
-        return reviewRepository.findReviewsWithAttachments();
-    }
 
     /**
      * Approve review (admin only)
@@ -240,15 +217,6 @@ public class ReviewService {
         return new ReviewStatistics(totalReviews, averageRating, ratingCounts);
     }
 
-
-    /**
-     * Get user's review for a specific facility
-     */
-    @Transactional(readOnly = true)
-    public Review getUserReviewForFacility(Long userId, Long facilityId) {
-        List<Review> reviews = reviewRepository.findByUserIdAndFacilityId(userId, facilityId);
-        return reviews.isEmpty() ? null : reviews.get(0);
-    }
 
     /**
      * Validate admin permission

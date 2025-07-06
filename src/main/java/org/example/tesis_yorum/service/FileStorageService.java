@@ -4,14 +4,11 @@ import jakarta.annotation.PostConstruct;
 import org.example.tesis_yorum.exceptions.FileStorageException;
 import org.example.tesis_yorum.exceptions.InvalidFileException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,24 +71,6 @@ public class FileStorageService {
     }
 
     /**
-     * Load file as Resource
-     */
-    public Resource loadFileAsResource(String filename) {
-        try {
-            Path filePath = this.fileStorageLocation.resolve(filename).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-
-            if (resource.exists()) {
-                return resource;
-            } else {
-                throw new FileStorageException("File not found " + filename);
-            }
-        } catch (MalformedURLException ex) {
-            throw new FileStorageException("File not found " + filename, ex);
-        }
-    }
-
-    /**
      * Delete file
      */
     public boolean deleteFile(String filename) {
@@ -100,26 +79,6 @@ public class FileStorageService {
             return Files.deleteIfExists(filePath);
         } catch (IOException ex) {
             throw new FileStorageException("Could not delete file " + filename, ex);
-        }
-    }
-
-    /**
-     * Check if file exists
-     */
-    public boolean fileExists(String filename) {
-        Path filePath = this.fileStorageLocation.resolve(filename).normalize();
-        return Files.exists(filePath);
-    }
-
-    /**
-     * Get file size
-     */
-    public long getFileSize(String filename) {
-        try {
-            Path filePath = this.fileStorageLocation.resolve(filename).normalize();
-            return Files.size(filePath);
-        } catch (IOException ex) {
-            throw new FileStorageException("Could not determine file size " + filename, ex);
         }
     }
 
@@ -211,24 +170,4 @@ public class FileStorageService {
         return fileStorageLocation;
     }
 
-    /**
-     * Get allowed content types
-     */
-    public List<String> getAllowedContentTypes() {
-        return ALLOWED_CONTENT_TYPES;
-    }
-
-    /**
-     * Get allowed file extensions
-     */
-    public List<String> getAllowedExtensions() {
-        return ALLOWED_EXTENSIONS;
-    }
-
-    /**
-     * Get maximum file size
-     */
-    public long getMaxFileSize() {
-        return MAX_FILE_SIZE;
-    }
 }

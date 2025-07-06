@@ -9,10 +9,6 @@ import org.example.tesis_yorum.entity.Review;
 import org.example.tesis_yorum.entity.ReviewStatus;
 import org.example.tesis_yorum.service.ReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,20 +53,12 @@ public class ReviewController {
      * GET /api/reviews
      */
     @Operation(
-            summary = "Bütün Yorumları Göster",
-            description = "Bütün Yorumları Gösterir.")
+            summary = "Bütün Onaylanmış Yorumları Göster",
+            description = "Bütün Onaylanmış Yorumları Gösterir.")
     @GetMapping
-    public ResponseEntity<Page<Review>> getAllReviews(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir) {
+    public ResponseEntity<List<Review>> getAllReviews() {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc") ?
-                Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Page<Review> reviews = reviewService.getReviewsByStatus(ReviewStatus.APPROVED, pageable);
+        List<Review> reviews = reviewService.getReviewsByStatus(ReviewStatus.APPROVED);
         return ResponseEntity.ok(reviews);
     }
 
@@ -79,8 +67,8 @@ public class ReviewController {
      * GET /api/reviews/{id}
      */
     @Operation(
-            summary = "Belirli bir Yorumu Göster",
-            description = "Girilen ID'ye göre yorum gösterir.")
+            summary = "Belirli Onaylanmış bir Yorumu Göster",
+            description = "Girilen ID'ye göre Onaylanmış yorum gösterir.")
     @GetMapping("/{id}")
     public ResponseEntity<Review> getReviewById(@PathVariable Long id) {
         Review review = reviewService.getReviewById(id);
@@ -92,21 +80,12 @@ public class ReviewController {
      * GET /api/reviews/facility/{facilityId}
      */
     @Operation(
-            summary = "Tesisin Bütün Yorumlarını Göster",
-            description = "Girilen Tesis ID'ye göre yorumları gösterir.")
+            summary = "Tesisin Bütün Onaylanmış Yorumlarını Göster",
+            description = "Girilen Tesis ID'ye göre Onaylanmış yorumları gösterir.")
     @GetMapping("/facility/{facilityId}")
-    public ResponseEntity<Page<Review>> getReviewsByFacility(
-            @PathVariable Long facilityId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortDir) {
+    public ResponseEntity<List<Review>> getReviewsByFacility(@PathVariable Long facilityId) {
 
-        Sort sort = sortDir.equalsIgnoreCase("desc") ?
-                Sort.by(sortBy).descending() : Sort.by(sortBy).ascending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Page<Review> reviews = reviewService.getApprovedReviewsByFacility(facilityId, pageable);
+        List<Review> reviews = reviewService.getApprovedReviewsByFacility(facilityId);
         return ResponseEntity.ok(reviews);
     }
 
@@ -118,33 +97,20 @@ public class ReviewController {
             summary = "Kullanıcının Bütün Yorumlarını Göster",
             description = "Girilen Kullanıcı ID'ye göre yorumları gösterir.")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Page<Review>> getReviewsByUser(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<List<Review>> getReviewsByUser(@PathVariable Long userId) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        Page<Review> reviews = reviewService.getReviewsByUser(userId, pageable);
+        List<Review> reviews = reviewService.getReviewsByUser(userId);
         return ResponseEntity.ok(reviews);
     }
 
-    /**
-     * Search reviews by content
-     * GET /api/reviews/search?q={keyword}
-     */
-    @Operation(
-            summary = "Tesisin Bütün Yorumlarını Göster",
-            description = "Girilen Tesis ID'ye göre yorumları gösterir.")
-    @GetMapping("/search")
-    public ResponseEntity<List<Review>> searchReviews(@RequestParam String q) {
-        List<Review> reviews = reviewService.searchReviewsByContent(q);
-        return ResponseEntity.ok(reviews);
-    }
 
     /**
      * Get review statistics for a facility
      * GET /api/reviews/facility/{facilityId}/statistics
      */
+    @Operation(
+            summary = "Girilen Tesisin Yorum İstatistiklerini Göster",
+            description = "Girilen Tesis ID'ye göre yorum istatistiklerini gösterir.")
     @GetMapping("/facility/{facilityId}/statistics")
     public ResponseEntity<ReviewService.ReviewStatistics> getReviewStatistics(@PathVariable Long facilityId) {
         ReviewService.ReviewStatistics stats = reviewService.getReviewStatistics(facilityId);
@@ -176,28 +142,6 @@ public class ReviewController {
     public ResponseEntity<Void> deleteReview(@PathVariable Long id, @RequestParam Long userId) {
         reviewService.deleteReview(id, userId);
         return ResponseEntity.noContent().build();
-    }
-
-    // Request DTOs
-    public static class CreateReviewRequest {
-        private Long userId;
-        private Long facilityId;
-        private String content;
-        @Min(1) @Max(5)
-        private Integer rating;
-
-        // Getters and setters
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-
-        public Long getFacilityId() { return facilityId; }
-        public void setFacilityId(Long facilityId) { this.facilityId = facilityId; }
-
-        public String getContent() { return content; }
-        public void setContent(String content) { this.content = content; }
-
-        public Integer getRating() { return rating; }
-        public void setRating(Integer rating) { this.rating = rating; }
     }
 
     public static class UpdateReviewRequest {

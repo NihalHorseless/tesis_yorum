@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/facilities")
@@ -56,7 +55,7 @@ public class FacilityController {
             summary = "Bütün Tesisleri Göster",
             description = "Bütün Tesisleri Gösterir.")
     @GetMapping
-    public ResponseEntity<List<Facility>> getAllFacilities(@RequestParam(defaultValue = "false") boolean activeOnly) {
+    public ResponseEntity<List<Facility>> getAllFacilities() {
         List<Facility> facilities = facilityService.getAllFacilities();
         return ResponseEntity.ok(facilities);
     }

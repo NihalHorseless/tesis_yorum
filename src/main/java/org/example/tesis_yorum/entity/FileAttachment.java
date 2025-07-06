@@ -1,6 +1,6 @@
 package org.example.tesis_yorum.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -40,7 +40,7 @@ public class FileAttachment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
-    @JsonIgnoreProperties({"attachments", "user", "facility"})  // Prevent deep circular reference
+    @JsonIgnore  // Completely ignore review to prevent circular reference
     private Review review;
 
     @CreationTimestamp
@@ -125,31 +125,7 @@ public class FileAttachment {
         this.createdAt = createdAt;
     }
 
-    // Helper methods
-    public boolean isImage() {
-        return contentType != null && (
-                contentType.equals("image/jpeg") ||
-                        contentType.equals("image/jpg") ||
-                        contentType.equals("image/png")
-        );
-    }
 
-    public String getFileExtension() {
-        if (originalFilename != null && originalFilename.contains(".")) {
-            return originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
-        }
-        return "";
-    }
-
-    public String getFileSizeFormatted() {
-        if (fileSize == null) return "0 B";
-
-        long bytes = fileSize;
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
-        if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
-        return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
-    }
 
     @Override
     public String toString() {

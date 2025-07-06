@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -101,16 +100,6 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    /**
-     * Update user role (admin only)
-     * PATCH /api/users/{id}/role
-     */
-    @PatchMapping("/{id}/role")
-    public ResponseEntity<User> updateUserRole(@PathVariable Long id,
-                                               @RequestBody UpdateRoleRequest request) {
-        User updatedUser = userService.updateUserRole(id, request.getRole());
-        return ResponseEntity.ok(updatedUser);
-    }
 
     /**
      * Delete user
@@ -160,10 +149,4 @@ public class UserController {
         public void setFullName(String fullName) { this.fullName = fullName; }
     }
 
-    public static class UpdateRoleRequest {
-        private UserRole role;
-
-        public UserRole getRole() { return role; }
-        public void setRole(UserRole role) { this.role = role; }
-    }
 }
