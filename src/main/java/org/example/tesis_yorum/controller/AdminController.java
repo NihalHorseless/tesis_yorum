@@ -24,10 +24,7 @@ public class AdminController {
         this.reviewService = reviewService;
     }
 
-    /**
-     * Get all pending reviews for approval
-     * GET /api/admin/reviews/pending
-     */
+
     @Operation(
             summary = "Onay Bekleyen Yorumları Göster",
             description = "Onay Bekleyen Yorumları Gösterir.")
@@ -38,10 +35,6 @@ public class AdminController {
     }
 
 
-    /**
-     * Approve a review
-     * POST /api/admin/reviews/{reviewId}/approve
-     */
     @Operation(
             summary = "Onay Bekleyen Yorumu Onayla",
             description = "Onay Bekleyen Yorumu girilen Yorum ID'sine göre onayla.")
@@ -54,10 +47,7 @@ public class AdminController {
         return ResponseEntity.ok(approvedReview);
     }
 
-    /**
-     * Reject a review
-     * POST /api/admin/reviews/{reviewId}/reject
-     */
+
     @Operation(
             summary = "Onay Bekleyen Yorumu Reddet",
             description = "Onay Bekleyen Yorumu girilen Yorum ID'sine göre reddet.")
@@ -72,10 +62,6 @@ public class AdminController {
     }
 
 
-    /**
-     * Get all reviews (all statuses) with pagination
-     * GET /api/admin/reviews/all
-     */
     @Operation(
             summary = "Bütün Yorumları Göster",
             description = "Bütün Yorumları Onaysız veya Onaylı Farketmeden Gösterir.")
@@ -88,10 +74,6 @@ public class AdminController {
         return ResponseEntity.ok(reviews);
     }
 
-    /**
-     * Delete any review (admin privilege)
-     * DELETE /api/admin/reviews/{reviewId}
-     */
     @Operation(
             summary = "Herhangi bir Yorumu Sil",
             description = "Admin Yetkisiyle girilen Yorum ID'ye göre Yorum siler.")

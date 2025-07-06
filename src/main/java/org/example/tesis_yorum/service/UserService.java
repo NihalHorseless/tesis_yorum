@@ -21,59 +21,38 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Create a new user
-     */
     public User createUser(User user) {
         validateUserForCreation(user);
         return userRepository.save(user);
     }
 
-    /**
-     * Create a new regular user
-     */
     public User createRegularUser(String username, String email, String fullName) {
         User user = new User(username, email, fullName, UserRole.USER);
         return createUser(user);
     }
 
-    /**
-     * Create a new admin user
-     */
     public User createAdminUser(String username, String email, String fullName) {
         User user = new User(username, email, fullName, UserRole.ADMIN);
         return createUser(user);
     }
 
-    /**
-     * Get user by ID
-     */
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
-    /**
-     * Get user by username
-     */
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + username));
     }
 
-    /**
-     * Get all users
-     */
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    /**
-     * Update user
-     */
     public User updateUser(Long id, User updatedUser) {
         User existingUser = getUserById(id);
 
@@ -94,10 +73,6 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-
-    /**
-     * Delete user
-     */
     public void deleteUser(Long id) {
         User user = getUserById(id);
         userRepository.delete(user);
@@ -113,9 +88,6 @@ public class UserService {
         return user.getRole() == UserRole.ADMIN;
     }
 
-    /**
-     * Validate user data for creation
-     */
     private void validateUserForCreation(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User cannot be null");

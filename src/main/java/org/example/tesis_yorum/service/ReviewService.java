@@ -33,9 +33,7 @@ public class ReviewService {
         this.fileAttachmentService = fileAttachmentService;
     }
 
-    /**
-     * Create a new review with optional file attachments
-     */
+
     public Review createReview(Long userId, Long facilityId, String content, Integer rating, List<MultipartFile> files) {
         User user = userService.getUserById(userId);
         Facility facility = facilityService.getFacilityById(facilityId);
@@ -56,71 +54,48 @@ public class ReviewService {
         return review;
     }
 
-    /**
-     * Create a simple review without files
-     */
+
     public Review createReview(Long userId, Long facilityId, String content, Integer rating) {
         return createReview(userId, facilityId, content, rating, null);
     }
 
-    /**
-     * Get review by ID
-     */
+
     @Transactional(readOnly = true)
     public Review getReviewById(Long id) {
         return reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id));
     }
 
-    /**
-     * Get all reviews
-     */
+
     @Transactional(readOnly = true)
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
     }
 
-    /**
-     * Get reviews by status
-     */
+
     @Transactional(readOnly = true)
     public List<Review> getReviewsByStatus(ReviewStatus status) {
         return reviewRepository.findByStatus(status);
     }
 
 
-    /**
-     * Get pending reviews for admin approval (ordered by creation date)
-     */
     @Transactional(readOnly = true)
     public List<Review> getPendingReviews() {
         return reviewRepository.findByStatusOrderByCreatedAtAsc(ReviewStatus.PENDING);
     }
 
-    /**
-     * Get approved reviews by facility with pagination
-     */
+
     @Transactional(readOnly = true)
     public List<Review> getApprovedReviewsByFacility(Long facilityId) {
         return reviewRepository.findByFacilityIdAndStatus(facilityId, ReviewStatus.APPROVED);
     }
 
 
-    /**
-     * Get reviews by user with pagination
-     */
     @Transactional(readOnly = true)
     public List<Review> getReviewsByUser(Long userId) {
         return reviewRepository.findByUserId(userId);
     }
 
-
-
-
-
-    /**
-     * Approve review (admin only)
-     */
     public Review approveReview(Long reviewId, Long adminId) {
         validateAdminPermission(adminId);
         Review review = getReviewById(reviewId);
@@ -133,9 +108,6 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    /**
-     * Reject review (admin only)
-     */
     public Review rejectReview(Long reviewId, Long adminId, String adminNotes) {
         validateAdminPermission(adminId);
         Review review = getReviewById(reviewId);
@@ -148,9 +120,6 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    /**
-     * Update review (user can only update their own pending reviews)
-     */
     public Review updateReview(Long reviewId, Long userId, String content, Integer rating) {
         Review review = getReviewById(reviewId);
 
@@ -169,9 +138,6 @@ public class ReviewService {
         return reviewRepository.save(review);
     }
 
-    /**
-     * Delete review (user can delete their own, admin can delete any)
-     */
     public void deleteReview(Long reviewId, Long userId) {
         Review review = getReviewById(reviewId);
         User user = userService.getUserById(userId);
@@ -190,18 +156,12 @@ public class ReviewService {
         reviewRepository.delete(review);
     }
 
-    /**
-     * Calculate average rating for a facility
-     */
     @Transactional(readOnly = true)
     public Double calculateAverageRating(Long facilityId) {
         Double average = reviewRepository.calculateAverageRatingByFacilityId(facilityId);
         return average != null ? average : 0.0;
     }
 
-    /**
-     * Get review statistics for a facility
-     */
     @Transactional(readOnly = true)
     public ReviewStatistics getReviewStatistics(Long facilityId) {
         List<Object[]> stats = reviewRepository.getReviewStatisticsByFacility(facilityId);
@@ -218,18 +178,12 @@ public class ReviewService {
     }
 
 
-    /**
-     * Validate admin permission
-     */
     private void validateAdminPermission(Long userId) {
         if (!userService.isAdmin(userId)) {
             throw new UnauthorizedException("Admin privileges required for this operation");
         }
     }
 
-    /**
-     * Review statistics helper class
-     */
     public static class ReviewStatistics {
         private final long totalReviews;
         private final double averageRating;

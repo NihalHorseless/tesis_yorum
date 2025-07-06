@@ -25,9 +25,7 @@ public class FileAttachmentService {
         this.fileStorageService = fileStorageService;
     }
 
-    /**
-     * Create file attachment for a review
-     */
+
     public FileAttachment createFileAttachment(Review review, MultipartFile file) {
         if (review == null) {
             throw new IllegalArgumentException("Review cannot be null");
@@ -49,9 +47,6 @@ public class FileAttachmentService {
         return fileAttachmentRepository.save(attachment);
     }
 
-    /**
-     * Get file attachment by ID
-     */
     @Transactional(readOnly = true)
     public FileAttachment getFileAttachmentById(Long id) {
         return fileAttachmentRepository.findById(id)
@@ -59,17 +54,13 @@ public class FileAttachmentService {
     }
 
 
-    /**
-     * Get attachments by review ID
-     */
+
     @Transactional(readOnly = true)
     public List<FileAttachment> getAttachmentsByReview(Long reviewId) {
         return fileAttachmentRepository.findByReviewId(reviewId);
     }
 
-    /**
-     * Delete file attachment
-     */
+
     public void deleteFileAttachment(Long id) {
         FileAttachment attachment = getFileAttachmentById(id);
 

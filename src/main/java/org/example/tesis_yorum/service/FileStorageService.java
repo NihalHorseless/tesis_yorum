@@ -44,9 +44,6 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Store file and return the stored filename
-     */
     public String storeFile(MultipartFile file) {
         validateFile(file);
 
@@ -70,9 +67,7 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Delete file
-     */
+
     public boolean deleteFile(String filename) {
         try {
             Path filePath = this.fileStorageLocation.resolve(filename).normalize();
@@ -82,9 +77,7 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Validate uploaded file
-     */
+
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new InvalidFileException("File is empty");
@@ -119,18 +112,14 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Generate unique filename
-     */
+
     private String generateUniqueFilename(String extension) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String uuid = UUID.randomUUID().toString().substring(0, 8);
         return timestamp + "_" + uuid + extension;
     }
 
-    /**
-     * Get file extension from filename
-     */
+
     private String getFileExtension(String filename) {
         if (filename == null || filename.lastIndexOf(".") == -1) {
             return "";
@@ -138,9 +127,7 @@ public class FileStorageService {
         return filename.substring(filename.lastIndexOf("."));
     }
 
-    /**
-     * Check if content type matches file extension
-     */
+
     private boolean isContentTypeMatchingExtension(String contentType, String extension) {
         switch (extension.toLowerCase()) {
             case ".jpg":
@@ -153,9 +140,7 @@ public class FileStorageService {
         }
     }
 
-    /**
-     * Format file size for display
-     */
+
     public String formatFileSize(long bytes) {
         if (bytes < 1024) return bytes + " B";
         if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
@@ -163,9 +148,6 @@ public class FileStorageService {
         return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
     }
 
-    /**
-     * Get storage location path
-     */
     public Path getFileStorageLocation() {
         return fileStorageLocation;
     }

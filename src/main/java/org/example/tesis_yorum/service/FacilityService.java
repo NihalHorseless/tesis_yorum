@@ -21,9 +21,7 @@ public class FacilityService {
         this.facilityRepository = facilityRepository;
     }
 
-    /**
-     * Create a new facility
-     */
+
     public Facility createFacility(Facility facility) {
         if (facility == null) {
             throw new IllegalArgumentException("Facility cannot be null");
@@ -31,44 +29,30 @@ public class FacilityService {
         return facilityRepository.save(facility);
     }
 
-    /**
-     * Create a facility with basic info
-     */
+
     public Facility createFacility(String name, FacilityType type, String description, String address, String city) {
         Facility facility = new Facility(name, description, address, city, type);
         return createFacility(facility);
     }
 
-    /**
-     * Get facility by ID
-     */
+
     @Transactional(readOnly = true)
     public Facility getFacilityById(Long id) {
         return facilityRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Facility not found with id: " + id));
     }
 
-    /**
-     * Get all facilities
-     */
+
     @Transactional(readOnly = true)
     public List<Facility> getAllFacilities() {
         return facilityRepository.findAll();
     }
 
-
-
-    /**
-     * Search facilities by keyword (name or description)
-     */
     @Transactional(readOnly = true)
     public List<Facility> searchFacilities(String keyword) {
         return facilityRepository.searchByNameOrDescription(keyword);
     }
 
-    /**
-     * Update facility
-     */
     public Facility updateFacility(Long id, Facility updatedFacility) {
         Facility existingFacility = getFacilityById(id);
 
@@ -82,9 +66,6 @@ public class FacilityService {
     }
 
 
-    /**
-     * Delete facility (hard delete)
-     */
     public void deleteFacility(Long id) {
         Facility facility = getFacilityById(id);
         facilityRepository.delete(facility);

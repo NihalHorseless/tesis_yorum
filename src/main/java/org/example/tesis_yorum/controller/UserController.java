@@ -26,10 +26,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    /**
-     * Create a new user
-     * POST /api/users
-     */
+
     @Operation(
             summary = "Yeni kullanıcı oluştur",
             description = "Yeni kullanıcı oluşturur.")
@@ -44,10 +41,7 @@ public class UserController {
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
-    /**
-     * Get all users
-     * GET /api/users
-     */
+
     @Operation(
             summary = "Bütün kullanıcıları göster",
             description = "Bütün kullanıcıları gösterir.")
@@ -57,10 +51,6 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
-    /**
-     * Get user by ID
-     * GET /api/users/{id}
-     */
     @Operation(
             summary = "Kullanıcıları ID'ye göre göster",
             description = "Kullanıcıları girilen ID'ye göre gösterir.")
@@ -70,10 +60,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    /**
-     * Get user by username
-     * GET /api/users/username/{username}
-     */
     @Operation(
             summary = "Kullanıcıları kullanıcı ismine göre göster",
             description = "Kullanıcıları girilen kullanıcı ismine göre gösterir.")
@@ -84,10 +70,7 @@ public class UserController {
     }
 
 
-    /**
-     * Update user
-     * PUT /api/users/{id}
-     */
+
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable Long id,
                                            @Valid @RequestBody UpdateUserRequest request) {
@@ -98,17 +81,6 @@ public class UserController {
 
         User updatedUser = userService.updateUser(id, userToUpdate);
         return ResponseEntity.ok(updatedUser);
-    }
-
-
-    /**
-     * Delete user
-     * DELETE /api/users/{id}
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
     }
 
 

@@ -11,11 +11,6 @@ import java.util.List;
 @Repository
 public interface FacilityRepository extends JpaRepository<Facility, Long> {
 
-
-
-    /**
-     * Search facilities by name or description (case insensitive)
-     */
     @Query("SELECT f FROM Facility f WHERE (LOWER(f.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(f.description) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     List<Facility> searchByNameOrDescription(@Param("keyword") String keyword);

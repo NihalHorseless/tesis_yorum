@@ -9,10 +9,6 @@ import java.util.List;
 @Repository
 public interface FileAttachmentRepository extends JpaRepository<FileAttachment, Long> {
 
-    /**
-     * Find attachments by review ID
-     */
     List<FileAttachment> findByReviewId(Long reviewId);
-
 
 }

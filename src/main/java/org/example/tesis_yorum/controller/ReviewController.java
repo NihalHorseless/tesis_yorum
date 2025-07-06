@@ -29,10 +29,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    /**
-     * Create a new review with optional file attachments
-     * POST /api/reviews
-     */
+
     @Operation(
             summary = "Dosya ile yorum oluştur",
             description = "Yeni bir yorum oluşturur ve isteğe bağlı olarak dosya ekler.")
@@ -48,10 +45,7 @@ public class ReviewController {
         return new ResponseEntity<>(review, HttpStatus.CREATED);
     }
 
-    /**
-     * Get all reviews
-     * GET /api/reviews
-     */
+
     @Operation(
             summary = "Bütün Onaylanmış Yorumları Göster",
             description = "Bütün Onaylanmış Yorumları Gösterir.")
@@ -62,10 +56,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    /**
-     * Get review by ID
-     * GET /api/reviews/{id}
-     */
+
     @Operation(
             summary = "Belirli Onaylanmış bir Yorumu Göster",
             description = "Girilen ID'ye göre Onaylanmış yorum gösterir.")
@@ -75,10 +66,7 @@ public class ReviewController {
         return ResponseEntity.ok(review);
     }
 
-    /**
-     * Get reviews by facility
-     * GET /api/reviews/facility/{facilityId}
-     */
+
     @Operation(
             summary = "Tesisin Bütün Onaylanmış Yorumlarını Göster",
             description = "Girilen Tesis ID'ye göre Onaylanmış yorumları gösterir.")
@@ -89,10 +77,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    /**
-     * Get reviews by user
-     * GET /api/reviews/user/{userId}
-     */
+
     @Operation(
             summary = "Kullanıcının Bütün Yorumlarını Göster",
             description = "Girilen Kullanıcı ID'ye göre yorumları gösterir.")
@@ -104,10 +89,6 @@ public class ReviewController {
     }
 
 
-    /**
-     * Get review statistics for a facility
-     * GET /api/reviews/facility/{facilityId}/statistics
-     */
     @Operation(
             summary = "Girilen Tesisin Yorum İstatistiklerini Göster",
             description = "Girilen Tesis ID'ye göre yorum istatistiklerini gösterir.")
@@ -117,10 +98,10 @@ public class ReviewController {
         return ResponseEntity.ok(stats);
     }
 
-    /**
-     * Update review (user can only update their own pending reviews)
-     * PUT /api/reviews/{id}
-     */
+
+    @Operation(
+            summary = "Beklemede olan yorumu güncelle",
+            description = "Girilen parametrelere göre beklemede olan yorumu günceller.")
     @PutMapping("/{id}")
     public ResponseEntity<Review> updateReview(
             @PathVariable Long id,
@@ -131,10 +112,6 @@ public class ReviewController {
         return ResponseEntity.ok(updatedReview);
     }
 
-    /**
-     * Delete review
-     * DELETE /api/reviews/{id}
-     */
     @Operation(
             summary = "Yorum Sil",
             description = "Girilen Yorum ID'ye göre yorum sil.")

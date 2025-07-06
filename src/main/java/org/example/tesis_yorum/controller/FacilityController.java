@@ -26,10 +26,7 @@ public class FacilityController {
         this.facilityService = facilityService;
     }
 
-    /**
-     * Create a new facility
-     * POST /api/facilities
-     */
+
     @Operation(
             summary = "Yeni bir Tesis oluştur",
             description = "Yeni bir Tesis oluşturur.")
@@ -47,10 +44,7 @@ public class FacilityController {
         return new ResponseEntity<>(createdFacility, HttpStatus.CREATED);
     }
 
-    /**
-     * Get all facilities
-     * GET /api/facilities
-     */
+
     @Operation(
             summary = "Bütün Tesisleri Göster",
             description = "Bütün Tesisleri Gösterir.")
@@ -60,10 +54,7 @@ public class FacilityController {
         return ResponseEntity.ok(facilities);
     }
 
-    /**
-     * Get facility by ID
-     * GET /api/facilities/{id}
-     */
+
     @Operation(
             summary = "ID'ye göre Tesis Göster",
             description = "Girilen ID parametresine göre Tesis Gösterir.")
@@ -73,10 +64,7 @@ public class FacilityController {
         return ResponseEntity.ok(facility);
     }
 
-    /**
-     * Search facilities
-     * GET /api/facilities/search?q={keyword}
-     */
+
     @Operation(
             summary = "Tesis İsim veya Açıklamasına göre Tesis Göster",
             description = "Girilen Tesis İsim veya Açıklaması parametrelerine göre Tesis Gösterir.")
@@ -86,10 +74,7 @@ public class FacilityController {
         return ResponseEntity.ok(facilities);
     }
 
-    /**
-     * Update facility
-     * PUT /api/facilities/{id}
-     */
+
     @Operation(
             summary = "Tesis Güncelle",
             description = "Girilen Tesis ID parametrelerisine göre Tesis Günceller.")
@@ -107,10 +92,6 @@ public class FacilityController {
         return ResponseEntity.ok(updatedFacility);
     }
 
-    /**
-     * Delete facility
-     * DELETE /api/facilities/{id}
-     */
     @Operation(
             summary = "Tesis Sil",
             description = "Girilen Tesis ID parametrelerisine göre Tesis Siler.")
