@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -20,15 +21,10 @@ import java.util.Set;
 public class GlobalExceptionHandler {
 
     /**
-     * HANDLE RESOURCE NOT FOUND (404 errors)
+     * 404: Kaynak Bulunamadı Hatası
      *
-     * @ExceptionHandler(ResourceNotFoundException.class) - This annotation tells Spring:
-     * "Whenever a ResourceNotFoundException is thrown anywhere in the app, call this method"
-     *
-     * Example scenarios:
-     * - User tries to get review with ID 999 that doesn't exist
-     * - User tries to access facility ID 123 that was deleted
-     * - User searches for username "john123" that doesn't exist
+     * Örnek Durumlar:
+     * - Kullanıcı olmayan bir ID parametresi ile çağrıda bulunursa
      */
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
@@ -48,12 +44,10 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE UNAUTHORIZED ACCESS (403 errors)
+     * 403: Erişim Hatası
      *
-     * Example scenarios:
-     * - Regular user tries to approve/reject reviews (admin only)
-     * - User tries to edit someone else's review
-     * - User tries to delete facility they don't own
+     * Örnek Durumlar:
+     * - Normal Kullanıcı Yorum onaylamaya veya reddetmeye çalışırsa
      */
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorizedException(
@@ -71,13 +65,12 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE FILE STORAGE PROBLEMS (500 errors)
+     * 500: Depolama Hatası
      *
-     * Example scenarios:
-     * - Disk is full, can't save uploaded file
-     * - File upload directory doesn't exist
-     * - Permission issues writing to file system
-     * - File corruption during upload
+     * Örnek Durumlar:
+     * - Disk dolu dosya upload edilemedi
+     * - Upload edilecek dosyanın adresinin boş olması
+     * - Dosya işlemi izinlerinin olmaması
      */
     @ExceptionHandler(FileStorageException.class)
     public ResponseEntity<ErrorResponse> handleFileStorageException(
@@ -95,13 +88,11 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE INVALID FILES (400 errors)
+     * 400: Hatalı Dosya
      *
-     * Example scenarios:
-     * - User uploads .txt file instead of image
-     * - User uploads 15MB file (over 10MB limit)
-     * - User uploads corrupted image
-     * - File has invalid extension (.exe, .pdf, etc.)
+     * Örnek Durumlar:
+     * - Kullanıcı izin verilmeyen türde bir dosya yüklerse
+     * - Kullanıcı belirlenen sınırın üstünde Dosya yüklerse
      */
     @ExceptionHandler(InvalidFileException.class)
     public ResponseEntity<ErrorResponse> handleInvalidFileException(
@@ -119,13 +110,12 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE ILLEGAL ARGUMENTS (400 errors)
+     * 400: Geçersiz Argüman Hatası
      *
-     * Example scenarios:
-     * - Trying to create user with username that already exists
-     * - Trying to create user with email that already exists
-     * - Passing null values where they're not allowed
-     * - Invalid data format (like negative rating)
+     * Örnek Durumlar:
+     * - Olan bir kullanıcı adıyla yeni bir kullanıcı yaratma
+     * - Null değeri girilmemesi gereken bir alana null veri girme
+     * - Yanlış veri tipinde parametre girmek
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
@@ -143,13 +133,11 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE ILLEGAL STATE (409 errors)
+     * 409: İzin Verilmeyen Durumlar
      *
-     * Example scenarios:
-     * - Trying to approve a review that's already approved
-     * - Trying to edit a review that's already been approved
-     * - Trying to delete a facility that has active reviews
-     * - Business rule violations
+     * Örnek:
+     * - Onaylanmış yorumu tekrar onaylamaya çalışmak
+     * - Onaylanmış yorumu değiştirmeye çalışmak
      */
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalStateException(
@@ -167,15 +155,11 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE VALIDATION ERRORS FROM @Valid (400 errors)
+     * 400: @Valid Anotasyonundan Gelen Doğrulama Hatası
      *
-     * This handles when Spring's @Valid annotation finds problems with request data.
-     *
-     * Example scenarios:
-     * - User submits review with rating = 6 (max is 5)
-     * - User submits review with empty content
-     * - User submits email without @ symbol
-     * - Required fields are missing
+     * Örnek Durumlar:
+     * - Kullanıcı verilen aralıkta parametreler girmemiştir (rating kısmına 6 girmek gibi)
+     * - Kullanıcı boş yorum girdiğinde
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationExceptions(
@@ -203,10 +187,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE CONSTRAINT VIOLATIONS (400 errors)
+     * 400: Parametre Doğrulama Hataları
      *
-     * This handles validation errors from method parameters
-     * (like @Min, @Max annotations on controller parameters)
+     * @Min, @Max gibi method anotasyonlarından gelen hataları yakalar
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ValidationErrorResponse> handleConstraintViolationException(
@@ -234,19 +217,27 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE FILE TOO LARGE (400 errors)
+     * 400: Büyük Dosya Hatası
      *
-     * This is triggered when Spring detects file upload exceeds the configured limit
-     * BEFORE our custom validation even runs.
+     * Dosya yükleme limiti aşıldığında ilk bu hata yakalanır
      */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxSizeException(
             MaxUploadSizeExceededException ex, WebRequest request) {
 
+        String message = "File size exceeds the maximum allowed limit of 10MB. ";
+
+        // Extract more specific information from the exception if possible
+        if (ex.getMessage() != null) {
+            if (ex.getMessage().contains("Maximum upload size exceeded")) {
+                message += "Please reduce file sizes or upload fewer files.";
+            }
+        }
+
         ErrorResponse errorResponse = new ErrorResponse(
                 400,
                 "File Too Large",
-                "File size exceeds the maximum allowed limit of 10MB",
+                message,
                 request.getDescription(false),
                 LocalDateTime.now()
         );
@@ -255,10 +246,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE UNEXPECTED RUNTIME ERRORS (500 errors)
+     * 500: Beklenmedik Runtime Hatası
      *
-     * This catches any RuntimeException that we didn't specifically handle above.
-     * It's a safety net for unexpected programming errors.
+     * Uygulama çalışırken beklenmedik bir hata geldiğinde çalışır
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(
@@ -276,10 +266,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * HANDLE ANY OTHER EXCEPTION (500 errors)
+     * 500: Diğer Tüm Hatalar
      *
-     * This is the ultimate fallback - catches ANYTHING that wasn't caught above.
-     * Prevents the application from crashing and showing stack traces to users.
+     * Başka hiçbir yerde yakalanmayan hatalar en son ihtimal burada yakalanır
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(
@@ -297,11 +286,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * STANDARD ERROR RESPONSE CLASS
+     * Yakalanan hatalar için uygun Yanıt Formatı oluşturur
      *
-     * This creates a consistent error response format for all errors.
-     * Instead of random error formats, every error will look like this:
-     *
+     * Örnek Yanıt:
      * {
      *   "status": 404,
      *   "error": "Resource Not Found",
@@ -334,12 +321,9 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * VALIDATION ERROR RESPONSE CLASS
+     * Birden fazla hatalı alanlar için Yanıt Formatı oluşturur
      *
-     * Extends ErrorResponse to include field-specific validation errors.
-     * Used when multiple fields fail validation at once.
-     *
-     * Example response:
+     * Örnek Yanıt:
      * {
      *   "status": 400,
      *   "error": "Validation Failed",
